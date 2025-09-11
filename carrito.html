@@ -1,0 +1,405 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Carrito - Kalcifer Joyas</title>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <script>
+    (function(){
+      emailjs.init("9GKothWU2xVxSuNRc"); // ← Reemplaza con tu User ID
+    })();
+  </script>
+  <style>
+    body { font-family:Inter, sans-serif; margin:0; background:#0b0b0d; color:#f3f3f3; }
+	body, html {
+  overflow: hidden;
+}
+
+    header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background-image: url('baner.jpg');
+  background-size: cover;
+  background-position: center;
+  border-bottom: 2px solid #e11d48;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: .8rem;
+}
+
+.logo-right {
+  display: flex;
+  align-items: center;
+}
+#modal-content {
+  max-height: 80vh; /* o el tamaño que prefieras */
+  overflow-y: auto;
+}
+#cart-list {
+  max-height: 400px; /* ajusta según tu diseño */
+  overflow-y: auto;
+}
+
+    footer {
+      background:#0b0b0d;
+      padding:1.5rem 1rem;
+      text-align:center;
+      border-top:2px solid #e11d48;
+      font-size:.9rem;
+    }
+    footer a {
+      color:#e11d48;
+      margin:0 .5rem;
+      text-decoration:none;
+    }
+    footer a:hover {
+      text-decoration:underline;
+    }
+    .social-links {
+      margin-top:1rem;
+    }
+    .social-links a {
+      display:inline-block;
+      margin:0 .5rem;
+      padding:.5rem 1rem;
+      border:1px solid #e11d48;
+      border-radius:8px;
+      color:#fff;
+      transition:background .2s ease;
+    }
+    .social-links a:hover {
+      background:#e11d48;
+    }
+    .logo img {
+      width:40px;
+      height:40px;
+      object-fit:contain;
+    }
+    .logo h1 {
+      font-size:1.8rem;
+      color:#e11d48;
+    }
+    .cart-header {
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      gap:.4rem;
+    }
+    .cart-header span {
+      background:#e11d48;
+      padding:.2rem .5rem;
+      border-radius:8px;
+      font-size:.9rem;
+    }
+    main { padding:2rem; max-width:800px; margin:auto; }
+    ul { list-style:none; padding:0; }
+    li { display:flex; justify-content:space-between; align-items:center; padding:.8rem; border-bottom:1px solid rgba(255,255,255,.1); }
+    li button { background:#e11d48; border:none; color:#fff; padding:.3rem .6rem; border-radius:6px; cursor:pointer; }
+    .total { font-size:1.2rem; font-weight:bold; margin-top:1rem; color:#e11d48; }
+    .actions { margin-top:1.5rem; display:flex; gap:1rem; }
+    .actions button { padding:.6rem 1rem; border:none; border-radius:8px; font-weight:bold; cursor:pointer; }
+    .clear { background:#e11d48; color:white; }
+    .checkout { background:#22c55e; color:white; }
+    footer { text-align:center; border-top:2px solid #e11d48; margin-top:3rem; }
+    #modal {
+      display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,.8); z-index:9999; justify-content:center; align-items:center;
+    }
+    #modal > div {
+      background:#101013; padding:2rem; border-radius:12px; max-width:500px; width:90%; color:#fff;
+    }
+    input, textarea {
+      background:#0b0b0d; border:1px solid #444; color:#fff; border-radius:6px;
+      padding:.5rem; width:100%; margin-bottom:.8rem;
+    }
+  </style>
+</head>
+<body>
+	<!-- Cartel de cookies bloqueante -->
+<div id="cookie-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:9999; display:flex; justify-content:center; align-items:center;">
+  <div style="background:#101013; color:#fff; padding:2rem; border-radius:12px; max-width:500px; text-align:center;">
+    <h2>🍪 Aviso de Cookies</h2>
+    <p style="margin-top:1rem;">
+      Esta web utiliza únicamente cookies técnicas necesarias para el funcionamiento del carrito y la experiencia de compra.  
+      No se activará ningún almacenamiento sin tu consentimiento.  
+    </p>
+    <p style="margin-top:1rem;">
+      Al aceptar, permites que se guarden datos básicos en tu navegador.  
+      Si rechazas, por nuestra parte no se almacenará nada y serás redirigido fuera de la web.
+    </p>
+	 <p style="margin-top:1rem;">
+      Puedes consultar nuestra <a href="politica-privacidadcookies.html" style="color:#e11d48; text-decoration:underline;">Política de Privacidad y Cookies</a> para más información.
+    </p>
+    <div style="margin-top:2rem;">
+      <button onclick="aceptarCookies()" style="margin-right:1rem; background:#22c55e; border:none; color:#fff; padding:.6rem 1.2rem; border-radius:6px; cursor:pointer;">Aceptar</button>
+      <button onclick="rechazarCookies()" style="background:#e11d48; border:none; color:#fff; padding:.6rem 1.2rem; border-radius:6px; cursor:pointer;">Rechazar</button>
+    </div>
+  </div>
+</div>
+<script>
+  function aceptarCookies() {
+    localStorage.setItem('kalcifer_cookies_aceptadas', 'true');
+    document.getElementById('cookie-overlay').style.display = 'none';
+    // Aquí puedes cargar funciones que dependan del consentimiento
+    loadCartPage(); // ← si quieres que el carrito se cargue solo tras aceptar
+  }
+
+  function rechazarCookies() {
+    localStorage.removeItem('kalcifer_cookies_aceptadas');
+    window.location.href = "https://www.google.com";
+  }
+
+  window.onload = function() {
+    if (!localStorage.getItem('kalcifer_cookies_aceptadas')) {
+      document.getElementById('cookie-overlay').style.display = 'flex';
+    } else {
+      document.getElementById('cookie-overlay').style.display = 'none';
+      loadCartPage(); // ← si quieres que se cargue directamente si ya aceptó
+    }
+  };
+</script>
+
+<header>
+<div class="logo">
+   <a href="kalcifer.html" style="display:flex; align-items:center; gap:.8rem; text-decoration:none;">
+  <img src="llama.gif" alt="Logo Kalcifer" style="width:80px; height:80px; border-radius:50%; border:3px solid white;">
+</a>
+  </div>
+  
+ 
+  <div class="cart-header">
+	<img src="fuego1.png" alt="Logo Kalcifer derecha" style="width:80px; height:50px;">
+    <a href="carrito.html" 
+   style="color:white; text-decoration:none; display:flex; align-items:center; gap:.4rem; 
+          background:black; padding:2%; border:2px solid white; border-radius:10px;">
+  🛒 Carrito <span id="cart-count">0</span>
+</a>
+
+    </a>
+  </div>
+</header>
+
+
+<main>
+  <h2>Tu Carrito</h2>
+  <p id="empty-msg">El carrito está vacío.</p>
+  <ul id="cart-list"></ul>
+  <div class="total" id="total"></div>
+  <div class="actions">
+    <button class="clear" onclick="clearCart()">Vaciar carrito</button>
+    <button class="checkout" onclick="checkout()">Finalizar compra</button>
+  </div>
+</main>
+
+<div id="modal">
+  <div>
+    <h2>¿Cómo deseas finalizar tu compra?</h2>
+    <div style="display:flex; gap:1rem; margin-top:1rem;">
+      <button onclick="mostrarVinted()" style="flex:1; background:#e11d48; border:none; padding:.8rem; border-radius:8px; color:#fff; font-weight:bold;">Comprar por Vinted</button>
+      <button onclick="mostrarBizum()" style="flex:1; background:#22c55e; border:none; padding:.8rem; border-radius:8px; color:#fff; font-weight:bold;">Pagar por Bizum</button>
+    </div>
+    <div id="modal-content" style="margin-top:2rem;"></div>
+    <button onclick="cerrarModal()" style="margin-top:1.5rem; background:#333; border:none; padding:.6rem 1rem; border-radius:6px; color:#fff;">Cerrar</button>
+  </div>
+</div>
+
+
+  <footer>
+	<p><strong>🔁 Política de devolución </strong> <br><br>Si han pasado menos de 30 días desde que recibiste tu pedido 📦 y la pieza no te convence 😕 o se ha dañado 💔, puedes solicitar un reemplazo sin problema ✨. ¡Queremos que estés feliz con tu compra! 😊</p>
+    <div class="social-links">
+      <a href="https://www.instagram.com/kalcifer_studio?igsh=MThmNWs2dWR1M3ptYw==" target="_blank">Instagram</a>
+      <a href="https://vinted.es" target="_blank">Vinted</a>
+	  <br><br>
+	  <a href="politica-privacidadcookies" target="_blank" style="background:white; color:red;">Politica de privacidad y Cookies</a>
+	    <p>© <span id="year"></span> Kalcifer Joyas — Todos los derechos reservados</p>
+    </div>
+	
+  </footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  function loadCart() {
+    const cart = JSON.parse(localStorage.getItem('kalcifer_cart')) || [];
+    document.getElementById('cart-count').textContent = cart.length;
+    return cart;
+  }
+
+  function saveCart(cart) {
+    localStorage.setItem('kalcifer_cart', JSON.stringify(cart));
+    document.getElementById('cart-count').textContent = cart.length;
+  }
+
+  function loadCartPage() {
+    const cart = loadCart();
+    const list = document.getElementById('cart-list');
+    const totalDiv = document.getElementById('total');
+    const emptyMsg = document.getElementById('empty-msg');
+    list.innerHTML = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+      emptyMsg.style.display = 'block';
+      totalDiv.textContent = '';
+      return;
+    }
+
+    emptyMsg.style.display = 'none';
+
+    cart.forEach((item, i) => {
+      const name = item.name || item;
+      const price = item.price || 0;
+      const color = item.color || 'Sin color';
+
+      const li = document.createElement('li');
+      li.innerHTML = `${name} - ${price}€ - Color: ${color}`;
+
+      const btn = document.createElement('button');
+      btn.textContent = 'Eliminar';
+      btn.onclick = () => { removeItem(i); };
+      li.appendChild(btn);
+
+      list.appendChild(li);
+      total += price;
+    });
+
+    totalDiv.textContent = "Total: " + total + " €";
+  }
+
+  function removeItem(index) {
+    let cart = loadCart();
+    cart.splice(index, 1);
+    saveCart(cart);
+    loadCartPage();
+  }
+
+  function clearCart() {
+    saveCart([]);
+    loadCartPage();
+  }
+
+  function checkout() {
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function cerrarModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('modal-content').innerHTML = '';
+  }
+
+  function generarPedidoId() {
+    return 'KAL' + Date.now().toString().slice(-6);
+  }
+function mostrarVinted() {
+  const pedidoId = generarPedidoId();
+  enviarPedidoVinted(pedidoId); // ← Esto lo hace automático
+  const contenido = `
+    <p><strong>Número de pedido:</strong> ${pedidoId}</p>
+    <p>Copia este numero y escribeme por vinted, generaré un pedido para ti☺️💕</p>
+    <a href="https://www.vinted.es/member/685283374" target="_blank" style="color:#e11d48;">Ir al perfil de Vinted</a>
+    <p>📧 Si tienes dudas, escríbenos a <strong>studiokalcifer@gmail.com</strong></p>
+  `;
+  document.getElementById('modal-content').innerHTML = contenido;
+}
+
+
+   function mostrarBizum() {
+  const pedidoId = generarPedidoId();
+  const cart = loadCart();
+  let total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+
+  const contenido = `
+    <label>Nombre y apellidos:</label><br>
+    <input type="text" id="nombre"><br>
+    <label>Teléfono:</label><br>
+    <input type="text" id="telefono"><br>
+    <label>Dirección de envío:</label><br>
+    <textarea id="direccion" rows="3"></textarea><br>
+    <p><strong>Número de pedido:</strong> ${pedidoId}</p>
+    <p><strong>Total a pagar:</strong> ${total} €</p>	
+	<p> Si pagas por Bizum, disfrutarás del mismo precio que ves aquí, sin comisiones añadidas y con la rapidez y seguridad que caracterizan este método de pago dentro de los canales bancarios</p>					
+    <p>💳 Para completar tu compra, realiza un <strong>Bizum</strong> al número <strong>685283374</strong> indicando como concepto vuestro <strong>número de telefono</strong> y el número de pedido: <strong>${pedidoId}</strong>.</p>
+	<p>📧 Si tienes cualquier duda, puedes escribirnos a <strong>studiokalcifer@gmail.com</strong> o contactar por WhatsApp al mismo número.</p>
+    <p>🔥​​ Recordad poner en el concepto del bizum el número de telefono porfis! Os escribiré y os mandaré actualizaciones</p>
+	<p><strong>¿Prefieres Vinted? En Vinted encontrarás algunas piezas a un precio más reducido, ideal si buscas oferta. Eso sí, recuerda que el pago por Bizum —si lo usas fuera de la plataforma— no ofrece protección al comprador que sí te brinda la propia plataforma de Vinted.</strong></p>
+	<p style="color:#e11d48; margin-top:1rem;">⚠️ Tu pedido no se validará hasta que rellenes este formulario y pulses el botón <strong>Aceptar</strong>.</p>
+    <button onclick="enviarPedidoBizum('${pedidoId}', ${total})" style="margin-top:1rem; background:#e11d48; border:none; padding:.6rem 1rem; border-radius:6px; color:#fff;">Aceptar</button>
+  `;
+
+  document.getElementById('modal-content').innerHTML = contenido;
+}
+function enviarPedidoBizum(pedidoId, total) {
+  const nombre = document.getElementById('nombre').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+  const direccion = document.getElementById('direccion').value.trim();
+  const cart = loadCart();
+
+  if (!nombre || !telefono || !direccion) {
+    alert("Por favor, rellena todos los campos antes de aceptar.");
+    return;
+  }
+
+  const productos = cart.map(item => {
+    const name = item.name || item;
+    const price = item.price || 0;
+    const color = item.color || 'Sin color';
+    return `${name} - ${price}€ - Color: ${color}`;
+  }).join('\n');
+
+  const templateParams = {
+    nombre,
+    telefono,
+    direccion,
+    pedido_id: pedidoId,
+    productos,
+    total
+  };
+
+  emailjs.send("service_bmg8fzp", "template_az3ydsl", templateParams)
+    .then(() => {
+      alert("Pedido enviado correctamente. Recuerda hacer el Bizum con el número de pedido como concepto.");
+      cerrarModal();
+    }, (error) => {
+      alert("Error al enviar el pedido. Inténtalo de nuevo.");
+      console.error(error);
+    });
+}function enviarPedidoVinted(pedidoId) {
+  const cart = loadCart();
+  const productos = cart.map(item => {
+    const name = item.name || item;
+    const price = item.price || 0;
+    const color = item.color || 'Sin color';
+    return `${name} - ${price}€ - Color: ${color}`;
+  }).join('\n');
+
+  const templateParams = {
+    nombre: "Compra por Vinted",
+    telefono: "No aplica",
+    direccion: "No aplica",
+    pedido_id: pedidoId,
+    productos,
+    total: cart.reduce((sum, item) => sum + (item.price || 0), 0)
+  };
+
+  emailjs.send("service_bmg8fzp", "template_az3ydsl", templateParams)
+    .then(() => {
+      console.log("✅ Pedido Vinted enviado correctamente.");
+    }, (error) => {
+      console.error("❌ Error al enviar pedido Vinted:", error);
+    });
+}
+
+
+loadCartPage();
+</script>
+</body>
+</html>
